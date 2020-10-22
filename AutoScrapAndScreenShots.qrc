@@ -1,0 +1,8 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource>
+        <file>Resources/Icons/backward-32.png</file>
+        <file>Resources/Icons/double-backward-32.png</file>
+        <file>Resources/Icons/double-forward-32.png</file>
+        <file>Resources/Icons/forward-32.png</file>
+    </qresource>
+</RCC>
