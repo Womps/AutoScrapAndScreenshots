@@ -1,12 +1,13 @@
 #ifndef UNIQUEURLSTANDARDMODEL_H
 #define UNIQUEURLSTANDARDMODEL_H
 
-#pragma warning(push, 0)
+#pragma warning(push)
+#pragma warning(disable : 4251 5054)
 #include <QtGui/QStandardItemModel>
+#pragma warning(pop)
 #include <QtCore/QPersistentModelIndex>
 #include <QtCore/QHash>
 #include <QtCore/QStringList>
-#pragma warning(pop)
 
 class UniqueUrlStandardModel final : public QStandardItemModel
 {

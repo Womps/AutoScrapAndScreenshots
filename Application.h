@@ -3,7 +3,9 @@
 
 #include "StreamSink.h"
 #include "ConsoleLogsDisplay.h"
-#pragma warning(push, 0)
+
+#pragma warning(push)
+#pragma warning(disable : 4251)
 #include <QtWidgets/QApplication>
 #pragma warning(pop)
 

@@ -1,19 +1,17 @@
 #ifndef STREAMSINK_H
 #define STREAMSINK_H
 
-#pragma warning(push, 0)
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <streambuf>
 #include <iostream>
 #include <string>
-#pragma warning(pop)
 
 class StreamSink : public QObject, public std::basic_streambuf<char>
 {
     Q_OBJECT
 public:
-    StreamSink(std::ostream& oStream)
+    explicit StreamSink(std::ostream& oStream)
         : _oStream(oStream)
         , _pOldStreamBuf(oStream.rdbuf())
     {
@@ -33,15 +31,15 @@ signals:
     void toLogs(const QString& sMessage);
 
 protected:
-    virtual int_type overflow(int_type c) override
+    virtual int_type overflow(int_type iCharacterToStore) override
     {
-        _sString += c;
-        if (c == '\n')
+        _sString += std::to_string(iCharacterToStore);
+        if (iCharacterToStore == '\n')
         {
             emit toLogs(QString::fromStdString(_sString));
             _sString.clear();
         }
-        return c;
+        return iCharacterToStore;
     }
 
     virtual std::streamsize xsputn(const char* const p, const std::streamsize n) override
@@ -62,6 +60,10 @@ protected:
 
         return n;
     }
+
+private:
+    StreamSink(const StreamSink&) = delete;
+    StreamSink& operator=(const StreamSink&) = delete;
 
 private:
     std::ostream& _oStream;

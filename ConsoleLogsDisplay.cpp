@@ -1,10 +1,5 @@
 #include "ConsoleLogsDisplay.h"
 
-ConsoleLogsDisplay::ConsoleLogsDisplay(QWidget* const pParent)
-    : QTextBrowser(pParent)
-{
-}
-
 void ConsoleLogsDisplay::insertMessage(const QString& sMessage, const LOG_LEVELS eLogLevel)
 {
     // Write logs to the text edit with the appropriate color

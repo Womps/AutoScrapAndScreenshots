@@ -1,7 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#pragma warning(push, 0)
+#pragma warning(push)
+#pragma warning(disable : 5054)
 #include <QtWidgets/QMainWindow>
 #pragma warning(pop)
 

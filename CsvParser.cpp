@@ -1,9 +1,7 @@
 #include "CsvParser.h"
-#pragma warning(push, 0)
 #include <QtCore/QStringList>
 #include <QtCore/QString>
 #include <QtCore/QChar>
-#pragma warning(pop)
 
 void CSV::fillListWithDataFromColumn(QStringList& lToFill, const QString& sCsvContent, const int iColumn)
 {

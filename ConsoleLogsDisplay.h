@@ -1,7 +1,8 @@
 #ifndef CONSOLELOGSDISPLAY_H
 #define CONSOLELOGSDISPLAY_H
 
-#pragma warning(push, 0)
+#pragma warning(push)
+#pragma warning(disable : 4251 5054)
 #include <QtWidgets/QTextBrowser>
 #pragma warning(pop)
 
@@ -22,5 +23,7 @@ public:
 public slots:
     void insertMessage(const QString& sMessage, const LOG_LEVELS eLogLevel);
 };
+
+inline ConsoleLogsDisplay::ConsoleLogsDisplay(QWidget* const pParent) : QTextBrowser(pParent) {}
 
 #endif // CONSOLELOGSDISPLAY_H

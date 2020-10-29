@@ -1,7 +1,5 @@
 #include "Application.h"
-#pragma warning(push, 0)
 #include <iostream>
-#pragma warning(pop)
 
 Application::Application(int &argc, char **argv)
     : QApplication(argc, argv)

@@ -1,45 +1,41 @@
 #include "MainWindowWidget.h"
 #include "CsvParser.h"
 #include "UniqueUrlStandardModel.h"
-#pragma warning(push, 0)
+#pragma warning(push)
+#pragma warning(disable : 4251)
 #include <QtWidgets/QGridLayout>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QFileDialog>
+#include <QtCore/QProcess>
+#include <QtCore/QUrlQuery>
+#include <QtNetwork/QNetworkReply>
+#pragma warning(pop)
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QComboBox>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QTreeView>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QProgressDialog>
-#include <QtWidgets/QFileDialog>
-#include <QtCore/QProcess>
 #include <QtCore/QDir>
 #include <QtCore/QUrl>
-#include <QtCore/QUrlQuery>
 #include <QtCore/QStandardPaths>
 #include <QtCore/QSettings>
 #include <QtGui/QIcon>
 #include <QtGui/QRegularExpressionValidator>
-#include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkAccessManager>
 #include <iostream>
 #include <string>
-#pragma warning(pop)
 
 MainWindowWidget::MainWindowWidget(QWidget* const pParent)
     : QWidget(pParent)
     , _pCrawlRunner(new QProcess(this))
-    , _pUrlLineEdit(new QLineEdit(this))
-    , _pCrawledUrlTreeView(new QTreeView(this))
-    , _pUrlToScreenTreeView(new QTreeView(this))
     , _pNetMgr(new QNetworkAccessManager(this))
-    , _pCrawledUrlModel(new UniqueUrlStandardModel(this))
-    , _pUrlToScreenModel(new UniqueUrlStandardModel(this))
 {
     const QSettings settings(QSettings(QStringLiteral("Kick-Digital"), QStringLiteral("AutoScrapAndScreenshots")));
     //---------------------------------------------------------------------------------------------------------------------------
@@ -148,6 +144,11 @@ MainWindowWidget::MainWindowWidget(QWidget* const pParent)
     QPushButton* const pAddAllUrlToScreenShot = new QPushButton(this);
     QPushButton* const pRemoveUrlFromScreenShot = new QPushButton(this);
     QPushButton* const pRemoveAllUrlFromScreenShot = new QPushButton(this);
+    _pUrlLineEdit = new QLineEdit(this);
+    _pCrawledUrlTreeView = new QTreeView(this);
+    _pUrlToScreenTreeView = new QTreeView(this);
+    _pCrawledUrlModel = new UniqueUrlStandardModel(this);
+    _pUrlToScreenModel = new UniqueUrlStandardModel(this);
     pGlobalGridLayout->setObjectName(QStringLiteral("centralWidgetGlobaGridLayout"));
     pAddRemoveUrlButtonsLayout->setObjectName(QStringLiteral("addOrRemoveButtonsVBoxLayout"));
     pStartScanPushButton->setObjectName(QStringLiteral("urlCrawlerStartScanButton"));

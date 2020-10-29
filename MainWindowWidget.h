@@ -1,11 +1,12 @@
 #ifndef MAINWINDOWWIDGET_H
 #define MAINWINDOWWIDGET_H
 
-#pragma warning(push, 0)
+#pragma warning(push)
+#pragma warning(disable : 5054)
 #include <QtWidgets/QWidget>
+#pragma warning(pop)
 #include <QtCore/QHash>
 #include <QtCore/QString>
-#pragma warning(pop)
 
 class QProcess;
 class QLineEdit;
@@ -47,20 +48,20 @@ private:
     void updateStartScreenShotButton() const;
 
 private:
-    int _nScreenShotTaken = 0;
     QHash<QString, QString> _hScreenShotsParamsByName;
     QString _sExportTmpDirPath;
-    QProcess* const _pCrawlRunner = nullptr;
-    QLineEdit* const _pUrlLineEdit = nullptr;
-    QTreeView* const _pCrawledUrlTreeView = nullptr;
-    QTreeView* const _pUrlToScreenTreeView = nullptr;
-    QNetworkAccessManager* const _pNetMgr = nullptr;
-    UniqueUrlStandardModel* const _pCrawledUrlModel = nullptr;
-    UniqueUrlStandardModel* const _pUrlToScreenModel = nullptr;
+    QProcess* _pCrawlRunner = nullptr;
+    QLineEdit* _pUrlLineEdit = nullptr;
+    QTreeView* _pCrawledUrlTreeView = nullptr;
+    QTreeView* _pUrlToScreenTreeView = nullptr;
+    QNetworkAccessManager* _pNetMgr = nullptr;
+    UniqueUrlStandardModel* _pCrawledUrlModel = nullptr;
+    UniqueUrlStandardModel* _pUrlToScreenModel = nullptr;
     QProgressDialog* _pProgressDialog = nullptr;
     QLineEdit* _pScreenShotsDirectory = nullptr;
     QPushButton* _pStartScreenShotsButton = nullptr;
     QLineEdit* _pScreenShotAccessKeyApi = nullptr;
+    int _nScreenShotTaken = 0;
 };
 
 #endif // MAINWINDOWWIDGET_H
