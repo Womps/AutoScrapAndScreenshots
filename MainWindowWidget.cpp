@@ -23,6 +23,7 @@
 #include <QtWidgets/QProgressDialog>
 #include <QtCore/QDir>
 #include <QtCore/QUrl>
+#include <QtCore/QPair>
 #include <QtCore/QStandardPaths>
 #include <QtCore/QSettings>
 #include <QtGui/QIcon>
@@ -37,6 +38,14 @@ MainWindowWidget::MainWindowWidget(QWidget* const pParent)
     , _pCrawlRunner(new QProcess(this))
     , _pNetMgr(new QNetworkAccessManager(this))
 {
+    _hUserAgentsAndStandardWidth =
+    {
+        {QStringLiteral("Galaxy S9/S9+ Android 7.0"), QPair(QStringLiteral("Mozilla/5.0 (Linux; Android 7.0; SM-G892A Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/67.0.3396.87 Mobile Safari/537.36"), 360)},
+        {QStringLiteral("iPhone X/XS iOS 12"), QPair(QStringLiteral("Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/12.0 Mobile/15A372 Safari/604.1"), 375)},
+        {QStringLiteral("iPad"), QPair(QStringLiteral("Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1"), 768)},
+        {QStringLiteral("Nexus 10 Android 6.0.1"), QPair(QStringLiteral("Mozilla/5.0 (Linux; Android 6.0.1; Nexus 10 Build/MOB31T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36"), 800)}
+    };
+
     const QSettings settings(QSettings(QStringLiteral("Kick-Digital"), QStringLiteral("AutoScrapAndScreenshots")));
     //---------------------------------------------------------------------------------------------------------------------------
     //              Screen Shots Parameters Setup
@@ -54,6 +63,7 @@ MainWindowWidget::MainWindowWidget(QWidget* const pParent)
     QPushButton* const pBrowseOutputDirButton = new QPushButton(tr("Browse..."), pScreenShotParamsGroupBox);
     _pStartScreenShotsButton = new QPushButton(tr("Start Screen shots"), pScreenShotParamsGroupBox);
     _pScreenShotAccessKeyApi = new QLineEdit(pScreenShotParamsGroupBox);
+    QComboBox* const pUserAgentSelector = new QComboBox(pScreenShotParamsGroupBox);
     pScreenShotParamsGroupBox->setObjectName(QStringLiteral("screenShotsParamsGroupBox"));
     pScreenShotsParamsLayout->setObjectName(QStringLiteral("screenShotsParamsLayout"));
     pScreenShotFullPage->setObjectName(QStringLiteral("screenShotsParamsFullPageCheckBox"));
@@ -67,6 +77,7 @@ MainWindowWidget::MainWindowWidget(QWidget* const pParent)
     pBrowseOutputDirButton->setObjectName(QStringLiteral("screenShotsParamsOutputDirButton"));
     _pStartScreenShotsButton->setObjectName(QStringLiteral("screenShotsParamsStartButton"));
     _pScreenShotAccessKeyApi->setObjectName(QStringLiteral("screenShotsParamsAccessKeyApi"));
+    pUserAgentSelector->setObjectName(QStringLiteral("screenShotsParamsUserAgentSelector"));
 
     connect(pScreenShotFullPage, &QCheckBox::stateChanged, [this, pScreenShotHeightSpinBox](const int nState)
     {
@@ -85,7 +96,7 @@ MainWindowWidget::MainWindowWidget(QWidget* const pParent)
     });
     connect(pScreenShotScrollPage, &QCheckBox::stateChanged, [this](const int nState){_hScreenShotsParamsByName[QStringLiteral("scroll_page")] = (nState == Qt::CheckState::Checked ? QStringLiteral("true") : QStringLiteral("false"));});
     connect(pScreenShotForceFresh, &QCheckBox::stateChanged, [this](const int nState){_hScreenShotsParamsByName[QStringLiteral("fresh")] = (nState == Qt::CheckState::Checked ? QStringLiteral("true") : QStringLiteral("false"));});
-    connect(pScreenShotWidthSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this](const int nWidth){_hScreenShotsParamsByName[QStringLiteral("width")] = QString::number(nWidth);});
+    connect(pScreenShotWidthSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this, pUserAgentSelector](const int nWidth) {_hScreenShotsParamsByName[QStringLiteral("width")] = QString::number(nWidth);});
     connect(pScreenShotHeightSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [this](const int nHeight){_hScreenShotsParamsByName[QStringLiteral("height")] = QString::number(nHeight);});
     connect(pScreenShotFormatComboBox, &QComboBox::currentTextChanged, [this](const QString& sNewText){_hScreenShotsParamsByName[QStringLiteral("format")] = sNewText;});
     connect(pBrowseOutputDirButton, &QPushButton::clicked, this, &MainWindowWidget::onBrowseOutputDirectory);
@@ -94,6 +105,22 @@ MainWindowWidget::MainWindowWidget(QWidget* const pParent)
     {
         QSettings settings(QSettings(QStringLiteral("Kick-Digital"), QStringLiteral("AutoScrapAndScreenshots")));
         settings.setValue(QStringLiteral("API_Access_Key"), sNewText);
+    });
+    connect(pUserAgentSelector, &QComboBox::currentTextChanged, [this, pScreenShotWidthSpinBox](const QString& sNewDevice)
+    {
+        const auto& UAAndWidthIterator = _hUserAgentsAndStandardWidth.constFind(sNewDevice);
+
+        if (UAAndWidthIterator != _hUserAgentsAndStandardWidth.constEnd())
+        {
+            const QPair<QString, int>& pairUAAndWidth = UAAndWidthIterator.value();
+            _hScreenShotsParamsByName[QStringLiteral("user_agent")] = pairUAAndWidth.first;
+            pScreenShotWidthSpinBox->setValue(pairUAAndWidth.second);
+        }
+        else
+        {
+            _hScreenShotsParamsByName.remove(QStringLiteral("user_agent"));
+            pScreenShotWidthSpinBox->setValue(1920);
+        }
     });
 
     pScreenShotFullPage->setToolTip(tr("Enable to take a full height screenshot."));
@@ -115,9 +142,12 @@ MainWindowWidget::MainWindowWidget(QWidget* const pParent)
     _pStartScreenShotsButton->setDisabled(true);
     pScreenShotFullPage->setCheckState(Qt::CheckState::Checked);
     _pScreenShotAccessKeyApi->setText(settings.value(QStringLiteral("API_Access_Key")).toString());
+    pUserAgentSelector->addItems({QString(), QStringLiteral("Galaxy S9/S9+ Android 7.0"), QStringLiteral("iPhone X/XS iOS 12"), QStringLiteral("iPad"), QStringLiteral("Nexus 10 Android 6.0.1")});
 
     pScreenShotsParamsLayout->addWidget(new QLabel(tr("API Acess Key :"), pScreenShotParamsGroupBox), 0, 0);
-    pScreenShotsParamsLayout->addWidget(_pScreenShotAccessKeyApi, 0, 1, 1, 4);
+    pScreenShotsParamsLayout->addWidget(_pScreenShotAccessKeyApi, 0, 1, 1, 2);
+    pScreenShotsParamsLayout->addWidget(new QLabel(tr("Device :"), pScreenShotParamsGroupBox), 0, 3);
+    pScreenShotsParamsLayout->addWidget(pUserAgentSelector, 0, 4);
     pScreenShotsParamsLayout->addWidget(pScreenShotFullPage, 1, 0);
     pScreenShotsParamsLayout->addWidget(pScreenShotScrollPage, 1, 1);
     pScreenShotsParamsLayout->addWidget(pScreenShotForceFresh, 1, 2);
@@ -382,11 +412,18 @@ void MainWindowWidget::onStartScreenShots()
 
         if (outputDir.mkpath(sUrlHostName))
         {
-            QUrlQuery query({qMakePair(QStringLiteral("access_key"), sApiAccessKey), qMakePair(QStringLiteral("url"), QUrl::toPercentEncoding(sUrlToScreenShot)) });
+            QUrlQuery query({QPair(QStringLiteral("access_key"), sApiAccessKey), QPair(QStringLiteral("url"), QUrl::toPercentEncoding(sUrlToScreenShot)), QPair(QStringLiteral("fail_on_status"), QStringLiteral("400-456,444,495-499,500-511"))});
 
             for(auto screenShotsParamsIt =  screenShotsParamsBeginIt; screenShotsParamsIt != screenShotsParamsEndIt; ++screenShotsParamsIt)
             {
-                query.addQueryItem(screenShotsParamsIt.key(), screenShotsParamsIt.value());
+                const QString& sParamValue = screenShotsParamsIt.value();
+
+                if (!sParamValue.isEmpty())
+                {
+                    query.addQueryItem(screenShotsParamsIt.key(), sParamValue);
+                }
+                
+                qDebug() << screenShotsParamsIt.key() << ":" << sParamValue;
             }
             url.setQuery(query);
             request.setUrl(url);

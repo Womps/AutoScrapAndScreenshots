@@ -62,6 +62,7 @@ private:
     QPushButton* _pStartScreenShotsButton = nullptr;
     QLineEdit* _pScreenShotAccessKeyApi = nullptr;
     int _nScreenShotTaken = 0;
+    QHash<QString, QPair<QString, int>> _hUserAgentsAndStandardWidth;
 };
 
 #endif // MAINWINDOWWIDGET_H
